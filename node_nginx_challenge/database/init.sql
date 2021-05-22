@@ -1,0 +1,7 @@
+CREATE DATABASE fullcycle;
+
+USE fullcycle;
+
+ CREATE TABLE people(
+   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+   nome VARCHAR(50) NOT NULL);

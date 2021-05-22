@@ -1,0 +1,40 @@
+version: '3'
+services:
+  mysql:
+    container_name: mysqlcontainer
+    build:
+        context: database
+    environment:  
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_ROOT_HOST: "%"
+    volumes:
+        - ./dbdata:/var/lib/mysql
+        - ./database:/docker-entrypoint-initdb.d
+    networks:
+        - fullcycle-app
+    restart: always
+  node:
+    container_name: nodecontainer
+    build:
+        context: app 
+    depends_on:
+        - mysql    
+    networks:
+        - fullcycle-app
+    entrypoint:  dockerize -wait tcp://mysql:3306 -timeout 100s
+    command: "node index.js"
+  nginx:
+    container_name: nginxcontainer
+    build:
+        context: nginx 
+    ports: 
+        - 8080:80
+    restart: on-failure
+    entrypoint: dockerize -wait tcp://node:3000 -timeout 200s /docker-entrypoint.sh nginx -g 'daemon off;'
+    depends_on:
+        - node    
+    networks:
+        - fullcycle-app
+networks:
+    fullcycle-app:
+        driver: bridge      
